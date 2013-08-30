@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTcpServer>
 #include "config.h"
+#include "db.h"
 
 class Server : public QObject
 {
@@ -11,11 +12,13 @@ class Server : public QObject
 public:
     explicit Server(QObject *parent = 0);
     bool readConfig(QString path);
+    bool setupDB();
     bool listen();
 
 private:
     Config config;
     QTcpServer tcpServer;
+    DB db;
 
 private slots:
     void newConnection();

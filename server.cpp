@@ -11,6 +11,11 @@ bool Server::readConfig(QString path)
     return config.readConfigFromFile(path);
 }
 
+bool Server::setupDB()
+{
+    return db.open(config.getDBPath());
+}
+
 bool Server::listen()
 {
     if(!tcpServer.listen(QHostAddress(config.getIP()), config.getPort()))

@@ -7,6 +7,11 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     Server server;
 
+    if(!server.setupDB())
+    {
+        QMessageBox::critical(0, "Error", "unable to connect to database");
+        return 1;
+    }
     if(!server.listen())
     {
         QMessageBox::critical(0, "Error", "unable to listen");
