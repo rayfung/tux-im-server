@@ -12,8 +12,10 @@ TARGET = TuxIMServer
 TEMPLATE = app
 
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    server.cpp
 
-HEADERS  +=
+HEADERS  += \
+    server.h
 
 FORMS    +=
