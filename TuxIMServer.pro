@@ -13,9 +13,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    server.cpp
+    server.cpp \
+    db.cpp
 
 HEADERS  += \
-    server.h
+    server.h \
+    db.h
 
 FORMS    +=
