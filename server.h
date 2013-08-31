@@ -3,8 +3,32 @@
 
 #include <QObject>
 #include <QTcpServer>
+#include <QTcpSocket>
+#include <QDataStream>
+#include <QString>
+#include <QMap>
 #include "config.h"
 #include "db.h"
+
+class Connection
+{
+public:
+    Connection();
+
+public:
+    QTcpSocket *socket;
+    enum
+    {
+        state_recv_request_len, state_recv_request_data,
+        state_error
+    }state;
+    quint32 len;
+
+    quint32 account;
+    bool login;
+    QString ip;
+    quint16 port;
+};
 
 class Server : public QObject
 {
@@ -16,12 +40,19 @@ public:
     bool listen();
 
 private:
+    bool process(Connection &conn, QDataStream &in, QDataStream &out);
+    void sendResponse(QTcpSocket *socket, const QByteArray &data);
+
+private:
     Config config;
     QTcpServer tcpServer;
     DB db;
+    QMap<QTcpSocket *, Connection> conns;
 
 private slots:
     void newConnection();
+    void clientDisconnected();
+    void clientReadyRead();
 };
 
 #endif // SERVER_H
