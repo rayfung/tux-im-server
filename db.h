@@ -23,6 +23,7 @@ public:
                  quint32 *id);
     bool getUserByID(User &user);
     bool getFriendList(quint32 id, QList<User> &userList, QList<QString> &displayNameList);
+    QString getFriendDisplayName(quint32 uid, quint32 friendID);
 
 private:
     void prepare();

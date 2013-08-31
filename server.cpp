@@ -138,6 +138,9 @@ bool Server::process(Connection &conn, QDataStream &in, QDataStream &out)
 
     case 0x03:
         return getFriendList(conn, in, out);
+
+    case 0x04:
+        return getUserProfile(conn, in, out);
     }
     return true;
 }
@@ -224,6 +227,32 @@ bool Server::getFriendList(Connection &conn, QDataStream &in, QDataStream &out)
             out << user.gender << user.address;
         }
     }
+    return true;
+}
+
+bool Server::getUserProfile(Connection &conn, QDataStream &in, QDataStream &out)
+{
+    quint32 num;
+    User user;
+
+    in >> user.id;
+    if(!db.getUserByID(user))
+    {
+        num = 0;
+        out << num;
+        return true;
+    }
+
+    Connection *c;
+    bool online = false;
+    c = findConnectionByUID(user.id);
+    if(c)
+        online = c->login;
+    num = 1;
+    out << num;
+    out << user.id << online << user.nickname;
+    out << db.getFriendDisplayName(conn.account, user.id);
+    out << user.gender << user.address;
     return true;
 }
 

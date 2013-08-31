@@ -87,3 +87,20 @@ bool DB::getFriendList(quint32 id, QList<User> &userList, QList<QString> &displa
     }
     return true;
 }
+
+QString DB::getFriendDisplayName(quint32 uid, quint32 friendID)
+{
+    prepare();
+
+    QSqlQuery q;
+
+    q.prepare("select display_name from tbl_friend "
+              "where user_id = ? and friend_id = ?");
+    q.addBindValue(uid);
+    q.addBindValue(friendID);
+    if(!q.exec())
+        return QString();
+    if(!q.next())
+        return QString();
+    return q.value(0).toString();
+}
