@@ -78,30 +78,33 @@ void Server::clientReadyRead()
 
     in.setVersion(QDataStream::Qt_4_6);
     out.setVersion(QDataStream::Qt_4_6);
-    switch(conn.state)
+    while(1)
     {
-    case Connection::state_recv_request_len:
-        if(socket->bytesAvailable() < sizeof(quint32))
-            return;
-        in >> conn.len;
-        conn.state = Connection::state_recv_request_data;
-        break;
-
-    case Connection::state_recv_request_data:
-        if(socket->bytesAvailable() < conn.len)
-            return;
-        if(!process(conn, in, out))
+        switch(conn.state)
         {
-            socket->close();
-            conn.state = Connection::state_error;
+        case Connection::state_recv_request_len:
+            if(socket->bytesAvailable() < sizeof(quint32))
+                return;
+            in >> conn.len;
+            conn.state = Connection::state_recv_request_data;
+            break;
+
+        case Connection::state_recv_request_data:
+            if(socket->bytesAvailable() < conn.len)
+                return;
+            if(!process(conn, in, out))
+            {
+                socket->close();
+                conn.state = Connection::state_error;
+                return;
+            }
+            sendResponse(socket, response);
+            conn.state = Connection::state_recv_request_len;
+            break;
+
+        default:
             return;
         }
-        sendResponse(socket, response);
-        conn.state = Connection::state_recv_request_len;
-        break;
-
-    default:
-        break;
     }
 }
 
@@ -121,14 +124,33 @@ bool Server::process(Connection &conn, QDataStream &in, QDataStream &out)
     quint8 cmd;
 
     in >> cmd;
+    qDebug() << "cmd: " << cmd;
     if(cmd > 0x02 && !conn.login)
         return false;
     switch(cmd)
     {
     case 0x01:
-        break;
+        return registerAccount(conn, in, out);
     }
     return true;
+}
+
+bool Server::registerAccount(Connection &conn, QDataStream &in, QDataStream &out)
+{
+    QString password, nickname;
+    quint8 gender;
+    QString address;
+    QString genderString;
+    quint32 accountID;
+    bool ok;
+
+    in >> password >> nickname >> gender >> address;
+    genderString = (gender == 'f' ? "f" : "m");
+    ok = db.addUser(password, nickname, genderString, address, &accountID);
+    if(ok)
+        out << accountID;
+    qDebug() << "registerAccount: " << ok;
+    return ok;
 }
 
 void Server::clientDisconnected()
@@ -141,5 +163,6 @@ void Server::clientDisconnected()
         conns.remove(socket);
         socket->close();
         socket->deleteLater();
+        qDebug() << "connection closed";
     }
 }
