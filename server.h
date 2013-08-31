@@ -43,6 +43,7 @@ private:
     bool process(Connection &conn, QDataStream &in, QDataStream &out);
     void sendResponse(QTcpSocket *socket, const QByteArray &data);
     bool registerAccount(Connection &conn, QDataStream &in, QDataStream &out);
+    bool login(Connection &conn, QDataStream &in, QDataStream &out);
 
 private:
     Config config;

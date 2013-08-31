@@ -132,6 +132,9 @@ bool Server::process(Connection &conn, QDataStream &in, QDataStream &out)
     {
     case 0x01:
         return registerAccount(conn, in, out);
+
+    case 0x02:
+        return login(conn, in, out);
     }
     return true;
 }
@@ -139,20 +142,43 @@ bool Server::process(Connection &conn, QDataStream &in, QDataStream &out)
 bool Server::registerAccount(Connection &conn, QDataStream &in, QDataStream &out)
 {
     QString password, nickname;
-    quint8 gender;
+    QString gender;
     QString address;
-    QString genderString;
     quint32 accountID;
     bool ok;
 
     in >> password >> nickname >> gender >> address;
     password = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
-    genderString = (gender == 'f' ? "f" : "m");
-    ok = db.addUser(password, nickname, genderString, address, &accountID);
+    ok = db.addUser(password, nickname, gender, address, &accountID);
     if(ok)
         out << accountID;
     qDebug() << "registerAccount: " << ok;
     return ok;
+}
+
+bool Server::login(Connection &conn, QDataStream &in, QDataStream &out)
+{
+    User user;
+    QString password;
+    QString ip;
+    quint16 port;
+    bool ok;
+
+    in >> user.id >> password >> ip >> port;
+    password = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
+    ok = db.getUserByID(user);
+    if(ok && password == user.password)
+    {
+        conn.login = true;
+        conn.account = user.id;
+        conn.ip = ip;
+        conn.port = port;
+        out << (bool)true << user.nickname << user.gender << user.address;
+        qDebug() << "login: " << conn.account << conn.ip << conn.port;
+    }
+    else
+        out << (bool)false;
+    return true;
 }
 
 void Server::clientDisconnected()

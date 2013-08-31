@@ -39,3 +39,23 @@ bool DB::addUser(QString password, QString nickname, QString gender, QString add
     q.addBindValue(address);
     return q.exec();
 }
+
+bool DB::getUserByID(User &user)
+{
+    prepare();
+
+    QSqlQuery q;
+
+    q.prepare("select password, nickname, gender, address from tbl_user "
+              "where id=?");
+    q.addBindValue(user.id);
+    if(!q.exec())
+        return false;
+    if(!q.next())
+        return false;
+    user.password = q.value(0).toString();
+    user.nickname = q.value(1).toString();
+    user.gender   = q.value(2).toString();
+    user.address  = q.value(3).toString();
+    return true;
+}
