@@ -47,6 +47,8 @@ private:
     bool login(Connection &conn, QDataStream &in, QDataStream &out);
     bool getFriendList(Connection &conn, QDataStream &in, QDataStream &out);
     bool getUserProfile(Connection &conn, QDataStream &in, QDataStream &out);
+    bool addFriend(Connection &conn, QDataStream &in, QDataStream &out);
+    bool getFriendIPAndPort(Connection &conn, QDataStream &in, QDataStream &out);
 
 private:
     Config config;

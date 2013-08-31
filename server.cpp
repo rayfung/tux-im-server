@@ -141,6 +141,12 @@ bool Server::process(Connection &conn, QDataStream &in, QDataStream &out)
 
     case 0x04:
         return getUserProfile(conn, in, out);
+
+    case 0x06:
+        return addFriend(conn, in, out);
+
+    case 0x07:
+        return getFriendIPAndPort(conn, in, out);
     }
     return true;
 }
@@ -253,6 +259,36 @@ bool Server::getUserProfile(Connection &conn, QDataStream &in, QDataStream &out)
     out << user.id << online << user.nickname;
     out << db.getFriendDisplayName(conn.account, user.id);
     out << user.gender << user.address;
+    return true;
+}
+
+bool Server::addFriend(Connection &conn, QDataStream &in, QDataStream &out)
+{
+    quint32 uid;
+    QString displayName;
+
+    in >> uid >> displayName;
+    out << db.makeFriend(conn.account, uid, displayName);
+    return true;
+}
+
+bool Server::getFriendIPAndPort(Connection &conn, QDataStream &in, QDataStream &out)
+{
+    quint32 uid;
+    Connection *c;
+
+    in >> uid;
+    c = findConnectionByUID(uid);
+    if(c)
+    {
+        out << c->login;
+        if(c->login)
+            out << c->ip << c->port;
+    }
+    else
+    {
+        out << (bool)false;
+    }
     return true;
 }
 

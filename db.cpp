@@ -104,3 +104,17 @@ QString DB::getFriendDisplayName(quint32 uid, quint32 friendID)
         return QString();
     return q.value(0).toString();
 }
+
+bool DB::makeFriend(quint32 uid, quint32 friendID, QString displayName)
+{
+    prepare();
+
+    QSqlQuery q;
+
+    q.prepare("insert into tbl_friend(user_id, friend_id, display_name) "
+              "values(?, ?, ?)");
+    q.addBindValue(uid);
+    q.addBindValue(friendID);
+    q.addBindValue(displayName);
+    return q.exec();
+}
