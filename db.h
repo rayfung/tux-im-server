@@ -2,6 +2,7 @@
 #define DB_H
 
 #include <QString>
+#include <QList>
 
 class User
 {
@@ -21,6 +22,7 @@ public:
     bool addUser(QString password, QString nickname, QString gender, QString address,
                  quint32 *id);
     bool getUserByID(User &user);
+    bool getFriendList(quint32 id, QList<User> &userList, QList<QString> &displayNameList);
 
 private:
     void prepare();

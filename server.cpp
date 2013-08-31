@@ -135,6 +135,9 @@ bool Server::process(Connection &conn, QDataStream &in, QDataStream &out)
 
     case 0x02:
         return login(conn, in, out);
+
+    case 0x03:
+        return getFriendList(conn, in, out);
     }
     return true;
 }
@@ -178,6 +181,49 @@ bool Server::login(Connection &conn, QDataStream &in, QDataStream &out)
     }
     else
         out << (bool)false;
+    return true;
+}
+
+Connection *Server::findConnectionByUID(quint32 uid)
+{
+    QMap<QTcpSocket *, Connection>::iterator iter;
+
+    for(iter = conns.begin(); iter != conns.end(); ++iter)
+    {
+        if(iter->account == uid)
+            return &(*iter);
+    }
+    return NULL;
+}
+
+bool Server::getFriendList(Connection &conn, QDataStream &in, QDataStream &out)
+{
+    QList<User> friendList;
+    QList<QString> displayNameList;
+    quint32 num;
+
+    if(!db.getFriendList(conn.account, friendList, displayNameList))
+    {
+        num = 0;
+        out << num;
+    }
+    else
+    {
+        num = friendList.size();
+        out << num;
+        for(quint32 i = 0; i < num; ++i)
+        {
+            User user = friendList.at(i);
+            bool online = false;
+            Connection *c;
+
+            c = findConnectionByUID(user.id);
+            if(c)
+                online = c->login;
+            out << user.id << online << user.nickname << displayNameList.at(i);
+            out << user.gender << user.address;
+        }
+    }
     return true;
 }
 

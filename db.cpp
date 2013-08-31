@@ -59,3 +59,31 @@ bool DB::getUserByID(User &user)
     user.address  = q.value(3).toString();
     return true;
 }
+
+bool DB::getFriendList(quint32 id, QList<User> &userList, QList<QString> &displayNameList)
+{
+    prepare();
+
+    QSqlQuery q;
+
+    q.prepare("select tbl_user.id, tbl_user.password, tbl_user.nickname, "
+              "tbl_user.gender, tbl_user.address, tbl_friend.display_name "
+              "from tbl_user, tbl_friend "
+              "where tbl_friend.user_id = ? and tbl_friend.friend_id = tbl_user.id");
+    q.addBindValue(id);
+    if(!q.exec())
+        return false;
+    while(q.next())
+    {
+        User user;
+
+        user.id = q.value(0).toUInt();
+        user.password = q.value(1).toString();
+        user.nickname = q.value(2).toString();
+        user.gender = q.value(3).toString();
+        user.address = q.value(4).toString();
+        userList.append(user);
+        displayNameList.append(q.value(5).toString());
+    }
+    return true;
+}
