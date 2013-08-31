@@ -49,6 +49,10 @@ private:
     bool getUserProfile(Connection &conn, QDataStream &in, QDataStream &out);
     bool addFriend(Connection &conn, QDataStream &in, QDataStream &out);
     bool getFriendIPAndPort(Connection &conn, QDataStream &in, QDataStream &out);
+    bool deleteFriend(Connection &conn, QDataStream &in, QDataStream &out);
+    bool modifyFriendDisplayName(Connection &conn, QDataStream &in, QDataStream &out);
+    bool modifyPassword(Connection &conn, QDataStream &in, QDataStream &out);
+    bool modifyUserProfile(Connection &conn, QDataStream &in, QDataStream &out);
 
 private:
     Config config;

@@ -118,3 +118,56 @@ bool DB::makeFriend(quint32 uid, quint32 friendID, QString displayName)
     q.addBindValue(displayName);
     return q.exec();
 }
+
+bool DB::removeFriend(quint32 uid, quint32 friendID)
+{
+    prepare();
+
+    QSqlQuery q;
+
+    q.prepare("delete from tbl_friend where user_id = ? and friend_id = ?");
+    q.addBindValue(uid);
+    q.addBindValue(friendID);
+    return q.exec();
+}
+
+bool DB::modifyFriendDisplayName(quint32 uid, quint32 friendID, QString displayName)
+{
+    prepare();
+
+    QSqlQuery q;
+
+    q.prepare("update tbl_friend set display_name = ? "
+              "where user_id = ? and friend_id = ?");
+    q.addBindValue(displayName);
+    q.addBindValue(uid);
+    q.addBindValue(friendID);
+    return q.exec();
+}
+
+bool DB::modifyPassword(quint32 uid, QString password)
+{
+    prepare();
+
+    QSqlQuery q;
+
+    q.prepare("update tbl_user set password = ? where id = ?");
+    q.addBindValue(password);
+    q.addBindValue(uid);
+    return q.exec();
+}
+
+bool DB::modifyUserProfile(User user)
+{
+    prepare();
+
+    QSqlQuery q;
+
+    q.prepare("update tbl_user set nickname = ?, gender = ?, address = ? "
+              "where id = ?");
+    q.addBindValue(user.nickname);
+    q.addBindValue(user.gender);
+    q.addBindValue(user.address);
+    q.addBindValue(user.id);
+    return q.exec();
+}

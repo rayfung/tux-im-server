@@ -142,11 +142,23 @@ bool Server::process(Connection &conn, QDataStream &in, QDataStream &out)
     case 0x04:
         return getUserProfile(conn, in, out);
 
+    case 0x05:
+        return deleteFriend(conn, in, out);
+
     case 0x06:
         return addFriend(conn, in, out);
 
     case 0x07:
         return getFriendIPAndPort(conn, in, out);
+
+    case 0xE0:
+        return modifyFriendDisplayName(conn, in, out);
+
+    case 0xE1:
+        return modifyPassword(conn, in, out);
+
+    case 0xE2:
+        return modifyUserProfile(conn, in, out);
     }
     return true;
 }
@@ -289,6 +301,45 @@ bool Server::getFriendIPAndPort(Connection &conn, QDataStream &in, QDataStream &
     {
         out << (bool)false;
     }
+    return true;
+}
+
+bool Server::deleteFriend(Connection &conn, QDataStream &in, QDataStream &out)
+{
+    quint32 uid;
+
+    in >> uid;
+    out << db.removeFriend(conn.account, uid);
+    return true;
+}
+
+bool Server::modifyFriendDisplayName(Connection &conn, QDataStream &in, QDataStream &out)
+{
+    quint32 uid;
+    QString displayName;
+
+    in >> uid >> displayName;
+    out << db.modifyFriendDisplayName(conn.account, uid, displayName);
+    return true;
+}
+
+bool Server::modifyPassword(Connection &conn, QDataStream &in, QDataStream &out)
+{
+    QString password;
+
+    in >> password;
+    password = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
+    out << db.modifyPassword(conn.account, password);
+    return true;
+}
+
+bool Server::modifyUserProfile(Connection &conn, QDataStream &in, QDataStream &out)
+{
+    User user;
+
+    in >> user.nickname >> user.gender >> user.address;
+    user.id = conn.account;
+    out << db.modifyUserProfile(user);
     return true;
 }
 
