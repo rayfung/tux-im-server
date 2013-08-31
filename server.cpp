@@ -1,6 +1,7 @@
 #include "server.h"
 #include <QDataStream>
 #include <QtDebug>
+#include <QCryptographicHash>
 
 Server::Server(QObject *parent) :
     QObject(parent)
@@ -145,6 +146,7 @@ bool Server::registerAccount(Connection &conn, QDataStream &in, QDataStream &out
     bool ok;
 
     in >> password >> nickname >> gender >> address;
+    password = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
     genderString = (gender == 'f' ? "f" : "m");
     ok = db.addUser(password, nickname, genderString, address, &accountID);
     if(ok)

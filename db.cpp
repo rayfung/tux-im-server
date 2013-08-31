@@ -26,8 +26,10 @@ bool DB::addUser(QString password, QString nickname, QString gender, QString add
     prepare();
 
     QSqlQuery q;
+
     qsrand(QDateTime::currentDateTime().toTime_t());
     *id = 20000 + qrand() % 102400;
+
     q.prepare("insert into tbl_user(id, password, nickname, gender, address) "
               "values(?, ?, ?, ?, ?)");
     q.addBindValue(*id);
