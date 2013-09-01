@@ -174,10 +174,9 @@ bool Server::registerAccount(Connection &conn, QDataStream &in, QDataStream &out
     in >> password >> nickname >> gender >> address;
     password = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha1).toHex();
     ok = db.addUser(password, nickname, gender, address, &accountID);
-    if(ok)
-        out << accountID;
-    else
-        out << (quint32)0;
+    if(!ok)
+        accountID = 0;
+    out << accountID;
     qDebug() << "registerAccount: " << accountID;
     return true;
 }
