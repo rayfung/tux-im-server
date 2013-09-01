@@ -176,8 +176,10 @@ bool Server::registerAccount(Connection &conn, QDataStream &in, QDataStream &out
     ok = db.addUser(password, nickname, gender, address, &accountID);
     if(ok)
         out << accountID;
-    qDebug() << "registerAccount: " << ok;
-    return ok;
+    else
+        out << (quint32)0;
+    qDebug() << "registerAccount: " << accountID;
+    return true;
 }
 
 bool Server::login(Connection &conn, QDataStream &in, QDataStream &out)
