@@ -7,6 +7,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     Server server;
 
+    server.readConfig("./im.cfg");
     if(!server.setupDB())
     {
         QMessageBox::critical(0, "Error", "unable to connect to database");
