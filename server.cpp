@@ -194,6 +194,17 @@ bool Server::login(Connection &conn, QDataStream &in, QDataStream &out)
     ok = db.getUserByID(user);
     if(ok && password == user.password)
     {
+        Connection *prevConn;
+
+        prevConn = findConnectionByUID(user.id);
+        if(prevConn)
+        {
+            prevConn->login = false;
+            prevConn->state = Connection::state_error;
+            if(prevConn->socket)
+                prevConn->socket->abort();
+        }
+
         conn.login = true;
         conn.account = user.id;
         conn.ip = ip;
