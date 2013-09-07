@@ -6,6 +6,7 @@ DB::DB()
 {
 }
 
+/* 打开数据库 */
 bool DB::open(QString dbName)
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
@@ -13,6 +14,7 @@ bool DB::open(QString dbName)
     return db.open();
 }
 
+/* 操作数据库之前的准备工作 */
 void DB::prepare()
 {
     QSqlQuery q;
@@ -20,6 +22,7 @@ void DB::prepare()
     q.exec("pragma foreign_keys = ON");
 }
 
+/* 添加一个用户，并返回该用户的标识符 */
 bool DB::addUser(QString password, QString nickname, QString gender, QString address,
                  quint32 *id)
 {
@@ -40,6 +43,7 @@ bool DB::addUser(QString password, QString nickname, QString gender, QString add
     return q.exec();
 }
 
+/* 根据用户的标识符获取用户信息 */
 bool DB::getUserByID(User &user)
 {
     prepare();
@@ -60,6 +64,7 @@ bool DB::getUserByID(User &user)
     return true;
 }
 
+/* 获取某个用户的好友列表（及备注名称） */
 bool DB::getFriendList(quint32 id, QList<User> &userList, QList<QString> &displayNameList)
 {
     prepare();
@@ -88,6 +93,7 @@ bool DB::getFriendList(quint32 id, QList<User> &userList, QList<QString> &displa
     return true;
 }
 
+/* 获取某个用户的某个好友的备注名称 */
 QString DB::getFriendDisplayName(quint32 uid, quint32 friendID)
 {
     prepare();
@@ -105,6 +111,7 @@ QString DB::getFriendDisplayName(quint32 uid, quint32 friendID)
     return q.value(0).toString();
 }
 
+/* 添加某个用户为好友，并设置备注名称 */
 bool DB::makeFriend(quint32 uid, quint32 friendID, QString displayName)
 {
     prepare();
@@ -119,6 +126,7 @@ bool DB::makeFriend(quint32 uid, quint32 friendID, QString displayName)
     return q.exec();
 }
 
+/* 删除好友 */
 bool DB::removeFriend(quint32 uid, quint32 friendID)
 {
     prepare();
@@ -131,6 +139,7 @@ bool DB::removeFriend(quint32 uid, quint32 friendID)
     return q.exec();
 }
 
+/* 修改好友备注名称 */
 bool DB::modifyFriendDisplayName(quint32 uid, quint32 friendID, QString displayName)
 {
     prepare();
@@ -145,6 +154,7 @@ bool DB::modifyFriendDisplayName(quint32 uid, quint32 friendID, QString displayN
     return q.exec();
 }
 
+/* 修改用户密码，传入的密码应该已经经过SHA-1哈希处理 */
 bool DB::modifyPassword(quint32 uid, QString password)
 {
     prepare();
@@ -157,6 +167,7 @@ bool DB::modifyPassword(quint32 uid, QString password)
     return q.exec();
 }
 
+/* 修改用户信息 */
 bool DB::modifyUserProfile(User user)
 {
     prepare();

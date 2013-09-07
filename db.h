@@ -7,11 +7,11 @@
 class User
 {
 public:
-    quint32 id;
-    QString password;
-    QString nickname;
-    QString gender;
-    QString address;
+    quint32 id; //用户标识符
+    QString password; //密码
+    QString nickname; //昵称
+    QString gender; //性别：f-女，m-男
+    QString address; //地址
 };
 
 class DB

@@ -13,9 +13,9 @@ public:
     QString getDBPath();
 
 private:
-    QString bindAddress;
-    quint16 bindPort;
-    QString dbFilePath;
+    QString bindAddress; //监听IP地址
+    quint16 bindPort; //监听端口号
+    QString dbFilePath; //数据库文件路径
 };
 
 #endif // CONFIG_H

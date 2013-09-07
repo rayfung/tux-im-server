@@ -8,16 +8,19 @@ Server::Server(QObject *parent) :
 {
 }
 
+/* 从文件中读取配置信息 */
 bool Server::readConfig(QString path)
 {
     return config.readConfigFromFile(path);
 }
 
+/* 初始化数据库 */
 bool Server::setupDB()
 {
     return db.open(config.getDBPath());
 }
 
+/* 初始化监听套接字 */
 bool Server::listen()
 {
     if(!tcpServer.listen(QHostAddress(config.getIP()), config.getPort()))
@@ -35,6 +38,7 @@ Connection::Connection()
     login = false;
 }
 
+/* 新连接到达 */
 void Server::newConnection()
 {
     qDebug() << "newConnection()";
@@ -53,6 +57,7 @@ void Server::newConnection()
             Qt::QueuedConnection);
 }
 
+/* 处理客户端发送的数据 */
 void Server::clientReadyRead()
 {
     QTcpSocket *socket;
@@ -109,6 +114,7 @@ void Server::clientReadyRead()
     }
 }
 
+/* helper 函数 */
 void Server::sendResponse(QTcpSocket *socket, const QByteArray &data)
 {
     {
@@ -120,6 +126,7 @@ void Server::sendResponse(QTcpSocket *socket, const QByteArray &data)
     socket->write(data);
 }
 
+/* 命令分配函数 */
 bool Server::process(Connection &conn, QDataStream &in, QDataStream &out)
 {
     quint8 cmd;
@@ -163,6 +170,7 @@ bool Server::process(Connection &conn, QDataStream &in, QDataStream &out)
     return true;
 }
 
+/* 注册账号 */
 bool Server::registerAccount(Connection &conn, QDataStream &in, QDataStream &out)
 {
     QString password, nickname;
@@ -181,6 +189,7 @@ bool Server::registerAccount(Connection &conn, QDataStream &in, QDataStream &out
     return true;
 }
 
+/* 登录，如果已经登录，则先将之前的登录信息清除 */
 bool Server::login(Connection &conn, QDataStream &in, QDataStream &out)
 {
     User user;
@@ -199,6 +208,7 @@ bool Server::login(Connection &conn, QDataStream &in, QDataStream &out)
         prevConn = findConnectionByUID(user.id);
         if(prevConn)
         {
+            //清除已有的登录信息
             prevConn->login = false;
             prevConn->state = Connection::state_error;
             if(prevConn->socket)
@@ -229,6 +239,7 @@ Connection *Server::findConnectionByUID(quint32 uid)
     return NULL;
 }
 
+/* 获取好友列表 */
 bool Server::getFriendList(Connection &conn, QDataStream &in, QDataStream &out)
 {
     QList<User> friendList;
@@ -260,6 +271,7 @@ bool Server::getFriendList(Connection &conn, QDataStream &in, QDataStream &out)
     return true;
 }
 
+/* 获取用户信息 */
 bool Server::getUserProfile(Connection &conn, QDataStream &in, QDataStream &out)
 {
     quint32 num;
@@ -286,6 +298,7 @@ bool Server::getUserProfile(Connection &conn, QDataStream &in, QDataStream &out)
     return true;
 }
 
+/* 添加好友 */
 bool Server::addFriend(Connection &conn, QDataStream &in, QDataStream &out)
 {
     quint32 uid;
@@ -296,6 +309,7 @@ bool Server::addFriend(Connection &conn, QDataStream &in, QDataStream &out)
     return true;
 }
 
+/* 获取好友监听的IP地址和端口号 */
 bool Server::getFriendIPAndPort(Connection &conn, QDataStream &in, QDataStream &out)
 {
     quint32 uid;
@@ -316,6 +330,7 @@ bool Server::getFriendIPAndPort(Connection &conn, QDataStream &in, QDataStream &
     return true;
 }
 
+/* 删除好友 */
 bool Server::deleteFriend(Connection &conn, QDataStream &in, QDataStream &out)
 {
     quint32 uid;
@@ -325,6 +340,7 @@ bool Server::deleteFriend(Connection &conn, QDataStream &in, QDataStream &out)
     return true;
 }
 
+/* 修改好友备注名称 */
 bool Server::modifyFriendDisplayName(Connection &conn, QDataStream &in, QDataStream &out)
 {
     quint32 uid;
@@ -335,6 +351,7 @@ bool Server::modifyFriendDisplayName(Connection &conn, QDataStream &in, QDataStr
     return true;
 }
 
+/* 修改用户密码 */
 bool Server::modifyPassword(Connection &conn, QDataStream &in, QDataStream &out)
 {
     QString password;
@@ -345,6 +362,7 @@ bool Server::modifyPassword(Connection &conn, QDataStream &in, QDataStream &out)
     return true;
 }
 
+/* 修改用户资料 */
 bool Server::modifyUserProfile(Connection &conn, QDataStream &in, QDataStream &out)
 {
     User user;
@@ -355,6 +373,7 @@ bool Server::modifyUserProfile(Connection &conn, QDataStream &in, QDataStream &o
     return true;
 }
 
+/* 客户端关闭连接 */
 void Server::clientDisconnected()
 {
     QTcpSocket *socket;

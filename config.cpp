@@ -24,6 +24,7 @@ QString Config::getDBPath()
     return dbFilePath;
 }
 
+/* 从配置文件中读取配置信息 */
 bool Config::readConfigFromFile(QString path)
 {
     QFile configFile(path);
